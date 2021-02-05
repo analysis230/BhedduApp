@@ -7,37 +7,46 @@ import Card from '../components/Card';
 
 const DetailsScreen = props => {
 
-    const screenWidth = Dimensions.get('window').width;
-    const searchBarWidth = 0.7 * screenWidth;
-    const [percentageSearchBoxWidth] = useState(new Animated.Value(searchBarWidth));
-  
-  
-    const onPressFunc = () => Animated.timing(percentageSearchBoxWidth, { toValue: screenWidth, timing: 10000 }).start();
-    const onEndEditingFunc = () => Animated.timing(percentageSearchBoxWidth, { toValue: searchBarWidth, timing: 10000 }).start();
-  
-    return (
-      <View style={styles.container} >
-        <ScrollView style={{ width: '100%' }} contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}>
-          <Card phoneNumber='+91 983494-0' threatLevel='4' />
-        </ScrollView>
-      </View>
-    );
-  }
-  
-  DetailsScreen.navigationOptions = { 
-    headerTitle: 'Details', 
-    headerStyle: { backgroundColor: Colors.secondary},
-    headerTintColor: Colors.textAndSymbols
-  };
-  
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: Colors.primary,
-      alignItems: 'center',
-      paddingTop: 55
-    },
-  });
+  const lambDetails = props.navigation.getParam('lambDetails')
 
- 
-  export default DetailsScreen;
+  return (
+    <View style={styles.container} >
+
+      <Text style={{ ...styles.numberText, fontSize: 40, paddingBottom: 30 }}>{lambDetails.id}</Text>
+      <Text style={styles.numberText}>{'Dame ID: ' + lambDetails.dameId}</Text>
+      <Text style={styles.numberText}>{'Sire ID: ' + lambDetails.sireId}</Text>
+      <Text style={styles.numberText}>{'Date of Birth: ' + lambDetails.dateOfLambing}</Text>
+      <Text style={styles.numberText}>{'Date of Mating: ' + lambDetails.dateOfMating}</Text>
+      <Text style={styles.numberText}>{'Birth Weight: ' + (lambDetails.birthWeight / 1000).toFixed(2) + 'kg'}</Text>
+      <Text style={styles.numberText}>{'Sex: ' + lambDetails.sex}</Text>
+      <Text style={styles.numberText}>{'Remarks: ' + lambDetails.remarks}</Text>
+    </View>
+  );
+}
+
+DetailsScreen.navigationOptions = {
+  headerTitle: 'Details',
+  headerStyle: { backgroundColor: Colors.secondary },
+  headerTintColor: Colors.textAndSymbols
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    width: '100%',
+    backgroundColor: Colors.primary,
+    paddingTop: 55,
+    paddingLeft: 30
+  },
+  numberText: {
+    color: Colors.textAndSymbols,
+    fontSize: 23,
+    marginBottom: 10
+  }
+});
+
+
+export default DetailsScreen;

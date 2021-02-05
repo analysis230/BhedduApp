@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, Keyboard } from 'react-native';
 import { Button } from 'react-native-elements';
 import Colors from '../constants/colors';
@@ -17,13 +17,12 @@ const SearchBar = props => {
     const [enteredValue, setEnteredValue] = useState('');
 
 
-    const clearInputFunc = () => {setEnteredValue(''); setHasText(false);};
-    const backFunc = () => { setIsFocused(false); Keyboard.dismiss();};
+    const clearInputFunc = () => { setEnteredValue(''); setHasText(false); };
+    const backFunc = () => { setIsFocused(false); Keyboard.dismiss(); };
 
     const onFocusFunc = () => {
         props.onFocus();
         setIsFocused(true);
-
     };
 
     const onEndEditingFunc = () => {
@@ -42,7 +41,7 @@ const SearchBar = props => {
     const getLeftIcons = () => {
         if (!isFocused) {
             return (
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => props.navigationProps.toggleDrawer()}>
                     <FontAwesome name="bars" color='black' size={outerViewHeight - 20} />
                 </TouchableOpacity>);
         }
@@ -100,7 +99,7 @@ const styles = StyleSheet.create({
         width: '80%',
         height: 50,
         borderRadius: 10,
-        
+
         borderColor: Colors.tertiary
     },
     input:
