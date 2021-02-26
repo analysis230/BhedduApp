@@ -33,15 +33,23 @@ export const insertNewLamb = async (key, value) => {
     }
 }
 
+export const lambExists = async (key) => {
+    const result = await getLamb(key);
+    if (result !== null)
+        return true;
+    else
+        return false;
+}
 export const updateLamb = async (key, value) => {
-    getLamb(key).then(
-        fetchedValue => {
-            insertNewLamb(key, { ...fetchedValue, ...value });
-        }
-    ).catch((e) => {
+
+    try {
+        const fetchedValue = await getLamb(key);
+        await insertNewLamb(key, { ...fetchedValue, ...value });
+    } catch (e) {
         console.log(e);
         throw e;
-    })
+    }
+
 }
 export const getLamb = async (key) => {
     try {

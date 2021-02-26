@@ -16,8 +16,14 @@ import { Provider } from 'react-redux';
 
 
 import Navigator from './navigation/Navigator';
+import FlashMessage from "react-native-flash-message";
+import * as Device from 'expo-device';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { cos } from 'react-native-reanimated';
+import FilterReducer from './store/reducers/FilterReducer'
 
-const rootReducer = combineReducers({ cardsScroll: CardsOnScrollReducer });
+
+const rootReducer = combineReducers({ cardsScroll: CardsOnScrollReducer, filterState: FilterReducer });
 
 const store = createStore(rootReducer);
 
@@ -29,13 +35,36 @@ const fetchFonts = () => {
   );
 };
 
+const orientationLock = async () => {
+  const deviceType = await Device.getDeviceTypeAsync();
+  const deviceModel = Device.modelId;
+  const osName = Device.osName;
+  if (deviceType === Device.DeviceType.TABLET || (deviceModel !== null && deviceModel.includes("iPad")))
+    await ScreenOrientation.unlockAsync();
+  else {
+    if (osName === "Android")
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    else
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+  }
+}
+
+
+
 export default function App() {
 
-  const [fontLoaded, setFontLoaded] = useState(false)
+  const [fontLoaded, setFontLoaded] = useState(false);
+  const [orientationFetched, setOrientationFetched] = useState(false);
 
-  if (!fontLoaded) {
+  if (!fontLoaded || !orientationFetched) {
     return (
-      <AppLoading startAsync={fetchFonts} onFinish={() => setFontLoaded(true)} onError={console.warn} />
+      <View style={{ backgroundColor: Colors.primary }}>
+        <AppLoading startAsync={fetchFonts} onFinish={() => setFontLoaded(true)} onError={console.warn} />
+        <AppLoading startAsync={orientationLock} onFinish={() => {
+          setOrientationFetched(true);
+
+        }} onError={console.warn} />
+      </View>
     );
   }
 
@@ -44,6 +73,7 @@ export default function App() {
       <View style={styles.container}>
         <StatusBar translucent backgroundColor="transparent" />
         <Navigator options={configs.navigatorOptions.gestureDirection} />
+        <FlashMessage position="bottom" />
       </View>
     </Provider>
   );

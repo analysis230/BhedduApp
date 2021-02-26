@@ -1,0 +1,22 @@
+{
+    "expo": {
+        "name": "Bheddu",
+        "slug": "bheddu",
+        "icon": "/Users/vipulrajan/Documents/workspace/SheepDirectory/assets/images/AppIcon.png",
+        "version": "1.0.0",
+        "splash": {
+            "image": "/Users/vipulrajan/Documents/workspace/SheepDirectory/assets/images/AppIconTransparent.png",
+            "backgroundColor": "#1A1A1A"
+          },
+          "androidNavigationBar": {"backgroundColor": "#1A1A1A"},
+        "ios": {
+        "bundleIdentifier": "com.createInc.bheddu",
+        "buildNumber": "1.5.0",
+        "requireFullScreen": true
+        },
+        "android": {
+            "package": "com.createInc.bheddu",
+            "versionCode": 1
+          }
+    }
+}

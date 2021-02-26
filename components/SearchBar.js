@@ -4,20 +4,26 @@ import { Button } from 'react-native-elements';
 import Colors from '../constants/colors';
 
 import { Ionicons, FontAwesome, AntDesign, Entypo } from '@expo/vector-icons';
-
+import FilterModal from './FilterModal';
 
 const SearchBar = props => {
-    const [outerViewX, setOuterViewX] = useState(null);
-    const [outerViewY, setOuterViewY] = useState(null);
-    const [outerViewWidth, setOuterViewWidth] = useState(null);
+
     const [outerViewHeight, setOuterViewHeight] = useState(null);
 
     const [isFocused, setIsFocused] = useState(false);
     const [hasText, setHasText] = useState(false);
     const [enteredValue, setEnteredValue] = useState('');
 
+    const setSearchAndEnteredValue = (value) => {
+        setEnteredValue(value);
+        props.setSearchText(value);
+    }
 
-    const clearInputFunc = () => { setEnteredValue(''); setHasText(false); };
+    const setSearchAndEnteredValueHasText = (bool) => {
+        setHasText(bool);
+        props.setSearchHasText(bool);
+    }
+    const clearInputFunc = () => { setSearchAndEnteredValue(''); setSearchAndEnteredValueHasText(false); };
     const backFunc = () => { setIsFocused(false); Keyboard.dismiss(); };
 
     const onFocusFunc = () => {
@@ -31,11 +37,11 @@ const SearchBar = props => {
     };
 
     const onChangeTextFunc = (text) => {
-        setEnteredValue(text);
+        setSearchAndEnteredValue(text);
         if (text.length > 0)
-            setHasText(true);
+            setSearchAndEnteredValueHasText(true);
         else
-            setHasText(false);
+            setSearchAndEnteredValueHasText(false);
     };
 
     const getLeftIcons = () => {
@@ -65,6 +71,14 @@ const SearchBar = props => {
             );
         }
     };
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const toggleFilterModal = () => {
+        setIsModalVisible(!isModalVisible);
+    }
+
+
     return (
         <Animated.View style={{ ...styles.container, ...props.containerStyle }} onLayout={(event) => {
             setOuterViewHeight(parseInt(event.nativeEvent.layout.height));
@@ -83,8 +97,10 @@ const SearchBar = props => {
                 style={{ ...styles.input, fontSize: outerViewHeight - 30, ...styles.inputStyle }} />
             {getCrossIcon()}
             <TouchableOpacity>
-                <Ionicons name="ios-search" color='black' size={outerViewHeight - 20} />
+                <Ionicons name="filter" color='black' size={outerViewHeight - 20} onPress={toggleFilterModal} />
             </TouchableOpacity>
+
+            <FilterModal isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible} />
         </Animated.View>
     );
 }

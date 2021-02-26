@@ -6,42 +6,68 @@ import SearchBar from '../components/SearchBar'
 import CardList from '../components/CardList';
 import AddButton from '../components/AddButton';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchCards, setCards } from '../store/actions/CardActions'
-
-import { useSelector } from 'react-redux';
 import { set } from 'react-native-reanimated';
 import { Viewport } from '@skele/components';
 import { Ionicons, FontAwesome, AntDesign, Entypo } from '@expo/vector-icons';
 import SeparatorBar from '../components/SeparatorBar';
 import { getAllLambs } from '../databases/DataStore';
+import Values from '../constants/Values';
+import { getCategory } from '../src/DateMethods'
 //const dispatch = useDispatch();
 
-const ViewportAwareText = Viewport.Aware(Text);
-
 const MainScreen = props => {
-
   const dispatch = useDispatch();
 
-  //console.log(props);
+  const [searchText, setSearchText] = useState('');
+  const [searchHasText, setSearchHasText] = useState(false);
+
+  const filters = useSelector(state => state.filterState);
 
   const fetchedCards = useSelector(state => {
-    return state.cardsScroll.cardsOnScroll;
+
+    const filteredCards = (() => {
+      if (!searchHasText) {
+        return state.cardsScroll.cardsOnScroll.map(x => {
+          return { ...x, category: getCategory(new Date(x.dateOfLambing)) }
+        }).filter(x => {
+          const allFilterKeys = Object.keys(filters);
+          const retBool = allFilterKeys.reduce((acc, key) => acc && filters[key].reduce((yAcc, yKey) => yAcc || yKey === x[key], false), true);
+          return retBool
+        });
+      }
+      else {
+        return state.cardsScroll.cardsOnScroll.filter(x => x.id.startsWith(searchText));
+      }
+    })();
+
+    return filteredCards;
   });
 
-  const fetchAllCards = () => {
 
-    console.log("fetched cards");
+
+  const fetchAllCards = () => {
     getAllLambs().then(cards => {
       dispatch(setCards(cards));
     }
     )
   };
 
+  useEffect(fetchAllCards, []);
+
+  const callBackFunction = () => {
+    getAllLambs().then(cards => {
+      dispatch(setCards(cards));
+    }
+    )
+  }
+
 
   const screenWidth = Dimensions.get('window').width;
   const searchBarWidth = 0.7 * screenWidth;
   const [percentageSearchBoxWidth] = useState(new Animated.Value(searchBarWidth));
+
 
 
   const onPressFunc = () => Animated.timing(percentageSearchBoxWidth, { useNativeDriver: false, toValue: 0.95 * screenWidth, timing: 10000 }).start();
@@ -50,15 +76,25 @@ const MainScreen = props => {
 
   return (
     <View style={styles.container} >
-      <SearchBar navigationProps={props.navigation} placeholderText='Search a Number' containerStyle={{ width: percentageSearchBoxWidth, marginBottom: 20 }} onFocus={onPressFunc} onEndEditing={onEndEditingFunc} />
+      <SearchBar
+        setSearchText={setSearchText}
+        setSearchHasText={setSearchHasText}
+        navigationProps={props.navigation}
+        placeholderText='Search a Number'
+        containerStyle={{ width: percentageSearchBoxWidth, marginBottom: 20 }}
+        onFocus={onPressFunc}
+        onEndEditing={onEndEditingFunc}
+        filters={filters}
+      />
       <SeparatorBar />
-      <Viewport.Tracker>
-        <ScrollView style={{ width: '100%' }} contentContainerStyle={{ alignItems: 'center', paddingTop: 5 }} scrollEventThrottle='16'>
-          <CardList cards={fetchedCards} navigationProps={props.navigation} />
-          <ViewportAwareText style={{ color: Colors.textAndSymbols, height: 70 }} onViewportEnter={fetchAllCards} > End of List  </ViewportAwareText>
-        </ScrollView>
-      </Viewport.Tracker>
-      <AddButton navigationProps={props.navigation} />
+      <Text style={styles.numberText}> {'Records: ' + fetchedCards.length}</Text>
+
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={{ alignItems: 'center', paddingTop: 5 }} scrollEventThrottle='16'>
+        <CardList cards={fetchedCards} navigationProps={props.navigation} callBackFunction={callBackFunction} />
+        <Text style={{ color: Colors.textAndSymbols, height: 70 }} > End of List  </Text>
+      </ScrollView>
+
+      <AddButton navigationProps={props.navigation} callBackFunction={callBackFunction} />
     </View>
   );
 }
@@ -88,6 +124,13 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  numberText: {
+    color: Colors.placeholderText,
+    fontSize: 18,
+    marginBottom: 5,
+    alignSelf: 'flex-start',
+    marginLeft: 25
   }
 });
 export default MainScreen;
